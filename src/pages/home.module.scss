@@ -9,26 +9,6 @@
     margin: 0.5rem 0 1.5625rem; 
   }
 
-  > ul {
-    display: flex;
-    list-style: none;
-
-    li {
-      display: flex;
-      align-items: center;
-
-      svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        margin-right: 0.5rem;
-      }
-
-      & + li {
-        margin-left: 1.5rem; 
-      }
-    }
-  }
-
   & + article {
     margin-top: 3.125rem;
   }

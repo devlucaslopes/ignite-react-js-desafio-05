@@ -33,22 +33,7 @@ export default function Home(): JSX.Element {
           <h1>Como utilizar Hooks</h1>
           <p>Pensando em sincronização em vez de ciclos de vida</p>
 
-          <ul>
-            <li>
-              <FiCalendar />
-              <time>19 Abr 2021</time>
-            </li>
-            <li>
-              <FiUser />
-              <span>Joseph Oliveira</span>
-            </li>
-          </ul>
-        </article>
-        <article className={styles.post}>
-          <h1>Como utilizar Hooks</h1>
-          <p>Pensando em sincronização em vez de ciclos de vida</p>
-
-          <ul>
+          <ul className={commonStyles.postInformations}>
             <li>
               <FiCalendar />
               <time>19 Abr 2021</time>
