@@ -5,10 +5,14 @@ import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
 import { Document } from '@prismicio/client/types/documents';
 
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import Header from '../components/Header';
 
 interface Post {
   uid?: string;
@@ -32,13 +36,7 @@ interface HomeProps {
 const postFormatter = (results: Document[]): Post[] => {
   return results.map(post => ({
     uid: post.uid,
-    first_publication_date: new Date(
-      post.first_publication_date
-    ).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }),
+    first_publication_date: post.first_publication_date,
     data: {
       title: post.data.title,
       subtitle: post.data.subtitle,
@@ -65,39 +63,50 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
   };
 
   return (
-    <div className={commonStyles.container}>
-      <main>
-        {posts.map(post => (
-          <article key={post.uid} className={styles.post}>
-            <Link href={`/post/${post.uid}`}>
-              <h1>{post.data.title}</h1>
-            </Link>
-            <p>{post.data.subtitle}</p>
+    <>
+      <Header />
+      <div className={commonStyles.container}>
+        <main>
+          {posts.map(post => (
+            <article key={post.uid} className={styles.post}>
+              <Link href={`/post/${post.uid}`}>
+                <h1>{post.data.title}</h1>
+              </Link>
+              <p>{post.data.subtitle}</p>
 
-            <ul className={commonStyles.postInformations}>
-              <li>
-                <FiCalendar />
-                <time>{post.first_publication_date}</time>
-              </li>
-              <li>
-                <FiUser />
-                <span>{post.data.author}</span>
-              </li>
-            </ul>
-          </article>
-        ))}
-      </main>
+              <ul className={commonStyles.postInformations}>
+                <li>
+                  <FiCalendar />
+                  <time>
+                    {format(
+                      new Date(post.first_publication_date),
+                      'dd MMM yyyy',
+                      {
+                        locale: ptBR,
+                      }
+                    )}
+                  </time>
+                </li>
+                <li>
+                  <FiUser />
+                  <span>{post.data.author}</span>
+                </li>
+              </ul>
+            </article>
+          ))}
+        </main>
 
-      {nextPage && (
-        <button
-          type="button"
-          onClick={handleLoadPosts}
-          className={styles.morePostsButton}
-        >
-          Carregar mais posts
-        </button>
-      )}
-    </div>
+        {nextPage && (
+          <button
+            type="button"
+            onClick={handleLoadPosts}
+            className={styles.morePostsButton}
+          >
+            Carregar mais posts
+          </button>
+        )}
+      </div>
+    </>
   );
 }
 
