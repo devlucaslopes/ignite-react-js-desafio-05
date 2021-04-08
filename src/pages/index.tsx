@@ -4,6 +4,7 @@ import Prismic from '@prismicio/client';
 
 import { RichText } from 'prismic-dom';
 import { useState } from 'react';
+import { Document } from '@prismicio/client/types/documents';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -28,6 +29,24 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
+const postFormatter = (results: Document[]): Post[] => {
+  return results.map(post => ({
+    uid: post.uid,
+    first_publication_date: new Date(
+      post.first_publication_date
+    ).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }),
+    data: {
+      title: post.data.title,
+      subtitle: post.data.subtitle,
+      author: post.data.author,
+    },
+  }));
+};
+
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const { results, next_page } = postsPagination;
 
@@ -38,21 +57,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
     fetch(nextPage)
       .then(response => response.json())
       .then(data => {
-        const newPosts = data.results.map(post => ({
-          uid: post.uid,
-          first_publication_date: new Date(
-            post.first_publication_date
-          ).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }),
-          data: {
-            title: post.data.title,
-            subtitle: post.data.subtitle,
-            author: post.data.author,
-          },
-        }));
+        const newPosts = postFormatter(data.results);
 
         setPosts([...posts, ...newPosts]);
         setNextPage(data.next_page);
@@ -105,21 +110,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   );
 
-  const posts = response.results.map(post => ({
-    uid: post.uid,
-    first_publication_date: new Date(
-      post.first_publication_date
-    ).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }),
-    data: {
-      title: post.data.title,
-      subtitle: post.data.subtitle,
-      author: post.data.author,
-    },
-  }));
+  const posts = postFormatter(response.results);
 
   return {
     props: {
