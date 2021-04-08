@@ -60,6 +60,9 @@ export default function Home(): JSX.Element {
           </ul>
         </article>
       </main>
+      <button type="button" className={styles.morePostsButton}>
+        Carregar mais posts
+      </button>
     </div>
   );
 }
