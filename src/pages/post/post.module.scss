@@ -21,3 +21,11 @@
   font-size: 0.875rem;
   font-style: italic;
 }
+
+.postContent {
+  margin-top: 3.75rem;
+
+  h2, p, ul {
+    margin: 1.5rem 0;
+  }
+}

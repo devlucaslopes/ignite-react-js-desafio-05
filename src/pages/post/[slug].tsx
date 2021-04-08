@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import { RichText } from 'prismic-dom';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 
 import { getPrismicClient } from '../../services/prismic';
@@ -27,26 +28,26 @@ interface PostProps {
   post: Post;
 }
 
-export default function Post(): JSX.Element {
+export default function Post({ post }: PostProps): JSX.Element {
   return (
     <>
       <img
-        src="https://raw.githubusercontent.com/octref/polacode/master/demo/1.png"
-        alt="titulo do post"
+        src={post.data.banner.url}
+        alt={post.data.title}
         className={styles.banner}
       />
       <div className={commonStyles.container}>
         <div className={styles.postInformationsContainer}>
-          <h1>Criando um app do zero</h1>
+          <h1>{post.data.title}</h1>
 
           <ul className={commonStyles.postInformations}>
             <li>
               <FiCalendar />
-              <time>19 Abr 2021</time>
+              <time>{post.first_publication_date}</time>
             </li>
             <li>
               <FiUser />
-              <span>Joseph Oliveira</span>
+              <span>{post.data.author}</span>
             </li>
             <li>
               <FiClock />
@@ -58,30 +59,58 @@ export default function Post(): JSX.Element {
           </span>
         </div>
 
-        <article>
-          <h2>Lorem ipsum</h2>
-          <p>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quod autem
-            dolorum fuga similique alias, impedit est minima, sed, eum eius
-            blanditiis iusto voluptatibus vitae soluta praesentium amet
-            consequuntur at eligendi.
-          </p>
+        <article className={styles.postContent}>
+          {post.data.content.map(({ heading, body }) => (
+            <>
+              <h2>{heading}</h2>
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: body.map(item => item).join(''),
+                }}
+              />
+            </>
+          ))}
         </article>
       </div>
     </>
   );
 }
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient();
-//   const posts = await prismic.query(TODO);
+export const getStaticPaths: GetStaticPaths = async () => {
+  // const prismic = getPrismicClient();
+  // const posts = await prismic.query(TODO);
 
-//   // TODO
-// };
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
 
-// export const getStaticProps = async context => {
-//   const prismic = getPrismicClient();
-//   const response = await prismic.getByUID(TODO);
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const prismic = getPrismicClient();
+  const response = await prismic.getByUID('post', String(params.slug), {});
 
-//   // TODO
-// };
+  return {
+    props: {
+      post: {
+        first_publication_date: new Date(
+          response.first_publication_date
+        ).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }),
+        data: {
+          title: response.data.title,
+          banner: response.data.banner,
+          author: response.data.author,
+          content: response.data.content.map(({ heading, body }) => ({
+            heading,
+            body: body.map(item => RichText.asHtml([item])),
+          })),
+        },
+      },
+    },
+  };
+};
