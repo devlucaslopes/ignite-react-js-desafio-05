@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import { GetStaticProps } from 'next';
+import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
-
-import { RichText } from 'prismic-dom';
-import { useState } from 'react';
 import { Document } from '@prismicio/client/types/documents';
+
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -69,7 +69,9 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <main>
         {posts.map(post => (
           <article key={post.uid} className={styles.post}>
-            <h1>{post.data.title}</h1>
+            <Link href={`/post/${post.uid}`}>
+              <h1>{post.data.title}</h1>
+            </Link>
             <p>{post.data.subtitle}</p>
 
             <ul className={commonStyles.postInformations}>
