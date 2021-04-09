@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { RichText } from 'prismic-dom';
@@ -41,7 +41,9 @@ interface PostProps {
 export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
 
-  const [readingTime, _] = useState(() => {
+  const commentBox = useRef(null);
+
+  const [readingTime] = useState(() => {
     const totalWords = post.data.content.reduce((acc, content) => {
       const text = RichText.asText(content.body);
 
@@ -50,6 +52,19 @@ export default function Post({ post }: PostProps): JSX.Element {
 
     return Math.ceil(totalWords / 200);
   });
+
+  useEffect(() => {
+    const scriptEl = document.createElement('script');
+
+    scriptEl.setAttribute('src', 'https://utteranc.es/client.js');
+    scriptEl.setAttribute('crossorigin', 'anonymous');
+    scriptEl.setAttribute('async', 'true');
+    scriptEl.setAttribute('repo', 'vincentntang/vincentntang.com-comments');
+    scriptEl.setAttribute('issue-term', 'pathname');
+    scriptEl.setAttribute('theme', 'github-dark');
+
+    commentBox.current.appendChild(scriptEl);
+  }, []);
 
   if (router.isFallback) {
     return (
@@ -106,6 +121,8 @@ export default function Post({ post }: PostProps): JSX.Element {
             </Fragment>
           ))}
         </article>
+
+        <div ref={commentBox} className="comment-box" />
       </div>
     </>
   );
