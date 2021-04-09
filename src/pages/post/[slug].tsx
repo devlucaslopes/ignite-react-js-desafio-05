@@ -17,6 +17,18 @@ import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import ExitPreviewButton from '../../components/ExitPreviewButton';
 
+interface NavigationItem {
+  uid: string;
+  data: {
+    title: string;
+  };
+}
+
+interface NavigationPost {
+  prevPost?: NavigationItem;
+  nextPost?: NavigationItem;
+}
+
 interface Post {
   uid: string;
   first_publication_date: string | null;
@@ -38,10 +50,15 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  navigationPost: NavigationPost;
   preview: boolean;
 }
 
-export default function Post({ post, preview }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  navigationPost,
+  preview,
+}: PostProps): JSX.Element {
   const router = useRouter();
 
   const commentBox = useRef(null);
@@ -127,23 +144,27 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
 
         <nav className={styles.navigationPost}>
           <ul>
-            <li>
-              <Link href="/">
-                <a>
-                  <span>Nome do post</span>
-                  Post anterior
-                </a>
-              </Link>
-            </li>
+            {navigationPost.prevPost && (
+              <li>
+                <Link href={`/post/${navigationPost.prevPost.uid}`}>
+                  <a>
+                    <span>{navigationPost.prevPost.data.title}</span>
+                    Post anterior
+                  </a>
+                </Link>
+              </li>
+            )}
 
-            <li className={styles.right}>
-              <Link href="/">
-                <a>
-                  <span>Nome do post</span>
-                  Próximo post
-                </a>
-              </Link>
-            </li>
+            {navigationPost.nextPost && (
+              <li className={styles.right}>
+                <Link href={`/post/${navigationPost.nextPost.uid}`}>
+                  <a>
+                    <span>{navigationPost.nextPost.data.title}</span>
+                    Próximo post
+                  </a>
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 
@@ -180,9 +201,31 @@ export const getStaticProps: GetStaticProps = async ({
   previewData,
 }) => {
   const prismic = getPrismicClient();
+
   const response = await prismic.getByUID('post', String(params.slug), {
     ref: previewData?.ref ?? null,
   });
+
+  const prevResponse = await prismic.query(
+    Prismic.predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+
+  const nextResponse = await prismic.query(
+    Prismic.predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: response.id,
+      orderings: '[document.first_publication_date]',
+    }
+  );
+
+  const nextPost = nextResponse?.results[0] || null;
+  const prevPost = prevResponse?.results[0] || null;
 
   return {
     props: {
@@ -196,6 +239,10 @@ export const getStaticProps: GetStaticProps = async ({
           author: response.data.author,
           content: response.data.content,
         },
+      },
+      navigationPost: {
+        prevPost,
+        nextPost,
       },
       preview,
     },
