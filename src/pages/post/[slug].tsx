@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
@@ -123,6 +124,28 @@ export default function Post({ post, preview }: PostProps): JSX.Element {
             </Fragment>
           ))}
         </article>
+
+        <nav className={styles.navigationPost}>
+          <ul>
+            <li>
+              <Link href="/">
+                <a>
+                  <span>Nome do post</span>
+                  Post anterior
+                </a>
+              </Link>
+            </li>
+
+            <li className={styles.right}>
+              <Link href="/">
+                <a>
+                  <span>Nome do post</span>
+                  Próximo post
+                </a>
+              </Link>
+            </li>
+          </ul>
+        </nav>
 
         <div ref={commentBox} />
 

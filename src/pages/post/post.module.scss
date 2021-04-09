@@ -29,3 +29,35 @@
     margin: 1.5rem 0;
   }
 }
+
+.navigationPost {
+  border-top: 1px solid var(--body);
+  padding-top: 3rem;
+  margin: 3rem 0;
+
+  ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    li {
+      span {
+        display: block;
+        font-size: 1.125rem;
+        font-weight: 400;
+        color: var(--heading);
+      }
+
+      a {
+        font-weight: 600;
+        color: var(--highlight);
+      }
+
+      &.right {
+        text-align: right;
+      }
+
+    }
+  }
+}
