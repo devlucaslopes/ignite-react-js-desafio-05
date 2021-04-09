@@ -14,6 +14,7 @@ import Header from '../../components/Header';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import ExitPreviewButton from '../../components/ExitPreviewButton';
 
 interface Post {
   uid: string;
@@ -36,9 +37,10 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  preview: boolean;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, preview }: PostProps): JSX.Element {
   const router = useRouter();
 
   const commentBox = useRef(null);
@@ -122,7 +124,9 @@ export default function Post({ post }: PostProps): JSX.Element {
           ))}
         </article>
 
-        <div ref={commentBox} className="comment-box" />
+        <div ref={commentBox} />
+
+        {preview && <ExitPreviewButton />}
       </div>
     </>
   );
@@ -147,9 +151,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('post', String(params.slug), {});
+  const response = await prismic.getByUID('post', String(params.slug), {
+    ref: previewData?.ref ?? null,
+  });
 
   return {
     props: {
@@ -164,6 +174,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           content: response.data.content,
         },
       },
+      preview,
     },
   };
 };
